@@ -17,7 +17,7 @@ class MonthlyRepaymentWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       key: dataKey,
-      padding: const EdgeInsets.only(top: 20, bottom: 25, left: 10, right: 10),
+      padding: const EdgeInsets.only(top: 20, bottom: 0, left: 10, right: 10),
       child: RichText(
         text: TextSpan(
           text: '$title: ',

@@ -4,6 +4,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:loan_calculator/src/model/model.dart';
 import 'package:loan_calculator/src/widgets/loan_table_widget.dart';
 import 'package:loan_calculator/src/widgets/monthly_repayment_widget.dart';
+import 'package:loan_calculator/src/widgets/recommended_salary_widget.dart';
 import 'package:loan_calculator/src/widgets/textfield_widget.dart';
 import 'package:loan_calculator/src/helper/ad_helper.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -28,7 +29,7 @@ class _HouseCalculatorLoanViewState extends State<HouseCalculatorLoanView> {
 
   List<LoanData> plots = [];
 
-  String totalPaymentMonthly = '';
+  num totalPaymentMonthly = 0;
 
   BannerAd? _bannerAd;
 
@@ -143,11 +144,19 @@ class _HouseCalculatorLoanViewState extends State<HouseCalculatorLoanView> {
               ),
             ),
           ),
-          if (totalPaymentMonthly != '')
+          if (totalPaymentMonthly != 0)
             MonthlyRepaymentWidget(
               dataKey: dataKey,
               title: 'MONTHLY REPAYMENT',
-              totalPaymentMonthly: totalPaymentMonthly,
+              totalPaymentMonthly: totalPaymentMonthly.toStringAsFixed(2),
+            ),
+          if (totalPaymentMonthly != 0)
+            RecommendedSalaryWidget(
+              title: 'RECOMMENDED SALARY',
+              description:
+                  'Recommended salary is the minimum salary per month to buy this house value (35% commitment rules).',
+              salary: _calculateRecommendedSalary(totalPaymentMonthly)
+                  .toStringAsFixed(2),
             ),
           if (plots.isNotEmpty) LoanTableWidget(plots: plots),
         ],
@@ -166,6 +175,12 @@ class _HouseCalculatorLoanViewState extends State<HouseCalculatorLoanView> {
         child: calculatorView(),
       ),
     );
+  }
+
+  num _calculateRecommendedSalary(num mPayment) {
+    num salary = (mPayment * 100) / 35;
+
+    return salary;
   }
 
   void _dismissKeyBoard(BuildContext context) {
@@ -240,7 +255,7 @@ class _HouseCalculatorLoanViewState extends State<HouseCalculatorLoanView> {
 
     setState(() {
       plots = plotsTemp;
-      totalPaymentMonthly = payment.toStringAsFixed(2);
+      totalPaymentMonthly = payment;
     });
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
