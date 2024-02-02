@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:loan_calculator/src/model/model.dart';
 import 'package:loan_calculator/src/widgets/loan_table_widget.dart';
 import 'package:loan_calculator/src/widgets/monthly_repayment_widget.dart';
+import 'package:loan_calculator/src/widgets/recommended_salary_widget.dart';
 import 'package:loan_calculator/src/widgets/textfield_widget.dart';
 import 'package:loan_calculator/src/helper/ad_helper.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -26,7 +27,7 @@ class _CarCalculatorLoanViewState extends State<CarCalculatorLoanView> {
 
   List<LoanData> plots = [];
 
-  String totalPaymentMonthly = '';
+  num totalPaymentMonthly = 0;
 
   BannerAd? _bannerAd;
 
@@ -141,11 +142,19 @@ class _CarCalculatorLoanViewState extends State<CarCalculatorLoanView> {
               ),
             ),
           ),
-          if (totalPaymentMonthly != '')
+          if (totalPaymentMonthly != 0)
             MonthlyRepaymentWidget(
               dataKey: dataKey,
               title: 'MONTHLY REPAYMENT',
-              totalPaymentMonthly: totalPaymentMonthly,
+              totalPaymentMonthly: totalPaymentMonthly.toStringAsFixed(2),
+            ),
+          if (totalPaymentMonthly != 0)
+            RecommendedSalaryWidget(
+              title: 'RECOMMENDED SALARY',
+              description:
+                  'Recommended salary is the minimum salary per month to buy this car value (15% commitment rules).',
+              salary: _calculateRecommendedSalary(totalPaymentMonthly)
+                  .toStringAsFixed(2),
             ),
           if (plots.isNotEmpty) LoanTableWidget(plots: plots),
         ],
@@ -164,6 +173,12 @@ class _CarCalculatorLoanViewState extends State<CarCalculatorLoanView> {
         child: calculatorView(),
       ),
     );
+  }
+
+  num _calculateRecommendedSalary(num mPayment) {
+    num salary = (mPayment * 100) / 15;
+
+    return salary;
   }
 
   void _dismissKeyBoard(BuildContext context) {
@@ -229,7 +244,7 @@ class _CarCalculatorLoanViewState extends State<CarCalculatorLoanView> {
 
     setState(() {
       plots = plotsTemp;
-      totalPaymentMonthly = payment.toStringAsFixed(2);
+      totalPaymentMonthly = payment;
     });
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
